@@ -3,7 +3,8 @@
 [![Tests](https://img.shields.io/badge/tests-17%20passed-success)](https://github.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
-[![Unraid Ready](https://img.shields.io/badge/Unraid-Compatible-E04E39)](README.md#unraid-installatie)
+[![Unraid Ready](https://img.shields.io/badge/Unraid-Compatible-E04E39)](INSTALL.md#4-option-c--unraid-via-community-applications)
+[![Install Guide](https://img.shields.io/badge/Install%20Guide-📖-green)](INSTALL.md)
 
 Een moderne, professionele, self-hosted webapplicatie voor het publiceren en beheren van officiële technische "Known Issues" en platformstatus voor smart-home ecosystemen.
 
@@ -247,3 +248,14 @@ PYTHONPATH=. pytest -v tests/
 - **Wachtwoorden:** Gehasht met `bcrypt` (12 rounds cost factor).
 - **Rate Limiting:** Ingebouwd tegen brute-force op login (max 8 pogingen/min) en subscription flood (max 15/min).
 - **Security Headers:** Standaard voorzien van `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, en `Referrer-Policy`.
+
+---
+
+## 📖 Documentatie
+
+| Document | Beschrijving |
+|---|---|
+| [INSTALL.md](INSTALL.md) | Volledige installatie- en deploymenthandleiding (Docker, SQLite, Unraid, reverse proxy, SMTP, backup) |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Richtlijnen voor bijdragen aan het project |
+| [SECURITY.md](SECURITY.md) | Responsible disclosure & beveiligingsbeleid |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Gedragsregels voor de community |
