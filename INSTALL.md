@@ -9,18 +9,17 @@ This guide covers every deployment scenario from a quick local test to a product
 1. [Prerequisites](#1-prerequisites)
 2. [Option A — Docker Compose with PostgreSQL (Recommended)](#2-option-a--docker-compose-with-postgresql-recommended)
 3. [Option B — Standalone SQLite (Lightweight / Unraid)](#3-option-b--standalone-sqlite-lightweight--unraid)
-4. [Option C — Unraid via Community Applications](#4-option-c--unraid-via-community-applications)
-5. [Option D — Local Development (no Docker)](#5-option-d--local-development-no-docker)
-6. [Environment Variables Reference](#6-environment-variables-reference)
-7. [Reverse Proxy Configuration](#7-reverse-proxy-configuration)
-   - [Nginx Proxy Manager](#71-nginx-proxy-manager-npm)
-   - [Cloudflare Tunnel](#72-cloudflare-tunnel-cloudflared)
-   - [Traefik v3](#73-traefik-v3)
-8. [SMTP / E-mail Setup](#8-smtp--e-mail-setup)
-9. [First Login & Admin Setup](#9-first-login--admin-setup)
-10. [Updating](#10-updating)
-11. [Backup & Restore](#11-backup--restore)
-12. [Troubleshooting](#12-troubleshooting)
+4. [Option C — Local Development (no Docker)](#4-option-c--local-development-no-docker)
+5. [Environment Variables Reference](#5-environment-variables-reference)
+6. [Reverse Proxy Configuration](#6-reverse-proxy-configuration)
+   - [Nginx Proxy Manager](#61-nginx-proxy-manager-npm)
+   - [Cloudflare Tunnel](#62-cloudflare-tunnel-cloudflared)
+   - [Traefik v3](#63-traefik-v3)
+7. [SMTP / E-mail Setup](#7-smtp--e-mail-setup)
+8. [First Login & Admin Setup](#8-first-login--admin-setup)
+9. [Updating](#9-updating)
+10. [Backup & Restore](#10-backup--restore)
+11. [Troubleshooting](#11-troubleshooting)
 
 ---
 
@@ -151,51 +150,17 @@ docker logs known-issues
 curl http://YOUR-SERVER-IP:8080/health
 ```
 
----
+### Unraid Docker template (manual)
 
-## 4. Option C — Unraid via Community Applications
-
-> **Requires:** Unraid 6.10+ with the Community Applications plugin installed.
-
-### Step 1 — Search Community Applications
-
-1. Go to **Apps** tab in the Unraid web UI.
-2. Search for **Known Issues Status Page**.
-3. Click **Install**.
-
-### Step 2 — Configure the container
-
-The template pre-fills safe defaults. Review and adjust:
-
-| Field | Default | Required |
-|---|---|---|
-| **Web Port** | `8080` | Adjust if port is in use |
-| **Appdata Storage** | `/mnt/user/appdata/known-issues/data` | Keep default or adjust path |
-| **Public URL** | `http://[IP]:8080` | Set to your actual public URL if behind a reverse proxy |
-| **Secret Key** | *(empty — auto-generated)* | Paste output of `openssl rand -hex 32` |
-| **Admin Email** | `admin@example.com` | Your login email |
-| **Admin Password** | `admin123!` | **Change this immediately!** |
-| **Database URL** | `sqlite:///./data/known_issues.db` | Leave as-is for SQLite |
-
-### Step 3 — Apply and Start
-
-Click **Apply**. Unraid will pull the image and start the container.
-
-### Step 4 — Access
-
-- **Public page:** `http://UNRAID-IP:8080`
-- **Admin dashboard:** `http://UNRAID-IP:8080/admin`
-
-### Manual template install (without CA)
-
-If the app is not yet in the CA store, you can load the template manually:
+A pre-filled Docker template is included in the repo. To use it without the CA store:
 
 1. Copy [`unraid/known-issues.xml`](unraid/known-issues.xml) to `/boot/config/plugins/dockerMan/templates-user/` on your Unraid server.
-2. Refresh the Docker tab → click **Add Container** → select **known-issues-platform** from the template dropdown.
+2. In the Unraid web UI, go to **Docker** → **Add Container** → select **known-issues-platform** from the template dropdown.
+3. Fill in your **Secret Key**, **Admin Email**, **Admin Password**, and **Public URL** — then click **Apply**.
 
 ---
 
-## 5. Option D — Local Development (no Docker)
+## 4. Option C — Local Development (no Docker)
 
 ### Step 1 — Python virtual environment
 
@@ -247,7 +212,7 @@ PYTHONPATH=. pytest -v tests/
 
 ---
 
-## 6. Environment Variables Reference
+## 5. Environment Variables Reference
 
 All variables can be set in `.env` (Docker Compose) or as `-e` flags (standalone Docker run).
 
@@ -296,7 +261,7 @@ All variables can be set in `.env` (Docker Compose) or as `-e` flags (standalone
 
 ---
 
-## 7. Reverse Proxy Configuration
+## 6. Reverse Proxy Configuration
 
 The container listens internally on port `8000`. The application respects `X-Forwarded-For`, `X-Forwarded-Proto`, and `Host` headers automatically.
 
@@ -309,7 +274,7 @@ Then restart: `docker compose restart app` (or `docker restart known-issues`).
 
 ---
 
-### 7.1 Nginx Proxy Manager (NPM)
+### 6.1 Nginx Proxy Manager (NPM)
 
 1. In NPM, go to **Proxy Hosts** → **Add Proxy Host**.
 2. Fill in:
@@ -327,7 +292,7 @@ Then restart: `docker compose restart app` (or `docker restart known-issues`).
 
 ---
 
-### 7.2 Cloudflare Tunnel (cloudflared)
+### 6.2 Cloudflare Tunnel (cloudflared)
 
 1. Open **Cloudflare Zero Trust** → **Networks** → **Tunnels**.
 2. Select your tunnel → **Public Hostnames** → **Add a public hostname**.
@@ -344,7 +309,7 @@ Then restart: `docker compose restart app` (or `docker restart known-issues`).
 
 ---
 
-### 7.3 Traefik v3
+### 6.3 Traefik v3
 
 Add labels to the `app` service in `docker-compose.yml`:
 
@@ -367,7 +332,7 @@ Remove the `ports:` section from the `app` service — Traefik handles routing d
 
 ---
 
-## 8. SMTP / E-mail Setup
+## 7. SMTP / E-mail Setup
 
 The platform uses SMTP for:
 - **Double opt-in confirmation** emails (subscribe flow)
@@ -398,7 +363,7 @@ curl http://localhost:8080/api/admin/email-outbox \
 
 ---
 
-## 9. First Login & Admin Setup
+## 8. First Login & Admin Setup
 
 1. Navigate to `http://YOUR-URL/admin`
 2. Log in with the credentials from your `.env`:
@@ -421,7 +386,7 @@ curl http://localhost:8080/api/admin/email-outbox \
 
 ---
 
-## 10. Updating
+## 9. Updating
 
 ### Docker Compose stack
 
@@ -449,7 +414,7 @@ docker rm known-issues
 
 ---
 
-## 11. Backup & Restore
+## 10. Backup & Restore
 
 ### SQLite backup
 
@@ -481,7 +446,7 @@ docker exec -i known-issues-db psql \
 
 ---
 
-## 12. Troubleshooting
+## 11. Troubleshooting
 
 ### Container exits immediately
 

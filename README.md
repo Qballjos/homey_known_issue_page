@@ -3,7 +3,7 @@
 [![Tests](https://img.shields.io/badge/tests-17%20passed-success)](https://github.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
-[![Unraid Ready](https://img.shields.io/badge/Unraid-Compatible-E04E39)](INSTALL.md#4-option-c--unraid-via-community-applications)
+[![Unraid Ready](https://img.shields.io/badge/Unraid-Compatible-E04E39)](INSTALL.md#3-option-b--standalone-sqlite-lightweight--unraid)
 [![Install Guide](https://img.shields.io/badge/Install%20Guide-📖-green)](INSTALL.md)
 
 Een moderne, professionele, self-hosted webapplicatie voor het publiceren en beheren van officiële technische "Known Issues" en platformstatus voor smart-home ecosystemen.
