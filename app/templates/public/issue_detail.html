@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% import "components/status_badge.html" as badge %}
+
+{% block title %}{{ issue.title }} | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-gray-500 font-medium">
+        <a href="/" class="hover:text-gray-900 transition-colors">Known Issues</a>
+        <span>/</span>
+        <span class="text-gray-900 truncate max-w-md">{{ issue.title }}</span>
+    </nav>
+
+    <!-- Main Detail Card -->
+    <div class="homey-card p-6 sm:p-10 space-y-8">
+        <!-- Header Info -->
+        <div class="space-y-4 border-b border-gray-100 pb-6">
+            <div class="flex flex-wrap items-center gap-3">
+                {{ badge.render_status_badge(issue.status, size="large") }}
+                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
+                    Severity: {{ issue.severity }}
+                </span>
+                <span class="text-xs text-gray-500 ml-auto">
+                    {{ issue.confirmed_subscribers_count }} affected users tracking
+                </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-950 tracking-tight leading-tight">
+                {{ issue.title }}
+            </h1>
+
+            <!-- Meta dates -->
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-500 pt-2">
+                <div>
+                    <span class="text-gray-400">First reported:</span>
+                    <strong class="text-gray-800 font-semibold">{{ issue.first_reported_at.strftime('%d %B %Y') }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400">Confirmed:</span>
+                    <strong class="text-gray-800 font-semibold">{{ issue.confirmed_at.strftime('%d %B %Y') }}</strong>
+                </div>
+                <div>
+                    <span class="text-gray-400">Last updated:</span>
+                    <strong class="text-gray-800 font-semibold">{{ issue.last_updated_at.strftime('%d %B %Y') }}</strong>
+                </div>
+                {% if issue.resolved_at %}
+                <div>
+                    <span class="text-gray-400">Resolved:</span>
+                    <strong class="text-emerald-700 font-semibold">{{ issue.resolved_at.strftime('%d %B %Y') }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Impact & Full Description -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Impact -->
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Impact</h2>
+                    <p class="text-base text-gray-800 leading-relaxed font-medium">
+                        {{ issue.summary }}
+                    </p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Technical Description</h2>
+                    <div class="text-sm text-gray-700 leading-relaxed space-y-3 whitespace-pre-line font-normal">
+                        {{ issue.description }}
+                    </div>
+                </div>
+
+                <!-- Workaround -->
+                {% if issue.workaround %}
+                <div class="rounded-2xl p-5 bg-amber-50/80 border border-amber-200">
+                    <div class="flex items-center gap-2 text-amber-900 font-bold text-sm mb-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Official Workaround
+                    </div>
+                    <p class="text-sm text-amber-950 leading-relaxed">
+                        {{ issue.workaround }}
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Expected Fix & Resolution -->
+                {% if issue.expected_fix or issue.fixed_version %}
+                <div class="rounded-2xl p-5 bg-emerald-50/80 border border-emerald-200 space-y-2">
+                    <div class="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Fix Status
+                    </div>
+                    {% if issue.expected_fix %}
+                        <p class="text-sm text-emerald-950">
+                            <strong>Expected resolution:</strong> {{ issue.expected_fix }}
+                        </p>
+                    {% endif %}
+                    {% if issue.fixed_version %}
+                        <p class="text-sm text-emerald-950">
+                            <strong>Fixed in version:</strong> <span class="font-mono font-bold">{{ issue.fixed_version }}</span>
+                        </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Chronological Timeline -->
+                <div class="pt-6 border-t border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-950 mb-6">Investigation Timeline</h2>
+                    {% if issue.updates %}
+                        <div class="timeline-container space-y-6">
+                            {% for update in issue.updates %}
+                                <div class="relative">
+                                    <div class="timeline-node"></div>
+                                    <div class="text-xs font-semibold text-gray-400">
+                                        {{ update.update_date.strftime('%d %B %Y') }}
+                                    </div>
+                                    <h4 class="text-sm font-bold text-gray-900 mt-1">
+                                        {{ update.title }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 mt-1 leading-relaxed whitespace-pre-line">
+                                        {{ update.description }}
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-400 italic">No timeline updates recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar: Technical Specs & Subscribe Card -->
+            <div class="space-y-6">
+                <!-- Products & Versions Box -->
+                <div class="p-6 rounded-2xl bg-gray-50 border border-gray-200/80 space-y-5">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Affected Products</h3>
+                        {% if issue.products %}
+                            <div class="flex flex-wrap gap-1.5">
+                                {% for p in issue.products %}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-xs font-semibold text-gray-800">
+                                        {{ p.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-xs text-gray-500 italic">None specified</span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Affected Versions</h3>
+                        {% if issue.versions %}
+                            <div class="flex flex-wrap gap-1.5">
+                                {% for v in issue.versions %}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-xs font-mono font-medium text-gray-800">
+                                        {{ v.version_string }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-xs text-gray-500 italic">All versions</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Subscribe to Updates Card -->
+                <div class="p-6 rounded-2xl bg-white border border-homey-500/30 shadow-sm space-y-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-homey-500"></span>
+                        <h3 class="text-base font-bold text-gray-950">Subscribe to updates</h3>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Receive instant notifications via email when status changes, workarounds are verified, or a firmware fix is deployed.
+                    </p>
+
+                    <button 
+                        type="button" 
+                        onclick="openSubscribeModal('{{ issue.id }}', '{{ issue.title | replace("'", "\\'") }}')" 
+                        class="btn-primary w-full text-xs py-2.5">
+                        Subscribe with Email
+                    </button>
+
+                    <p class="text-[11px] text-gray-400 text-center">
+                        Double opt-in verified • 1-click unsubscribe anytime
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

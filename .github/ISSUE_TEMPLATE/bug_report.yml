@@ -1,0 +1,33 @@
+name: Bug Report
+description: Report a defect or unexpected behavior
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for helping improve the platform! Please provide as much context as possible.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can maintainers reproduce the issue?
+      placeholder: |
+        1. Navigate to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Deployment Environment
+      description: Docker, Unraid, Local Python, Reverse Proxy (Traefik, Cloudflare, etc.)
+      placeholder: e.g. Docker Compose on Unraid 6.12 behind Cloudflare Tunnel
+    validations:
+      required: false

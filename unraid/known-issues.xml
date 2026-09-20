@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>known-issues-platform</Name>
+  <Repository>ghcr.io/qballjos/homey-known-issues:latest</Repository>
+  <Registry>https://github.com/Qballjos/homey_known_issue_page/pkgs/container/homey-known-issues</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Qballjos/homey_known_issue_page/issues</Support>
+  <Project>https://github.com/Qballjos/homey_known_issue_page</Project>
+  <Overview>Self-hosted Known Issues and Status Page platform for smart home ecosystems, featuring double opt-in email notifications, admin dashboard, and REST API.</Overview>
+  <Category>HomeAutomation: Status: Network:Management</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/Qballjos/homey_known_issue_page/main/app/static/img/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Web Port" Target="8000" Default="8080" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="Appdata Storage" Target="/app/data" Default="/mnt/user/appdata/known-issues/data" Mode="rw" Description="Persistent database and application data" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/known-issues/data</Config>
+  <Config Name="Public URL" Target="APP_URL" Default="http://[IP]:[PORT:8080]" Description="Public URL used for double opt-in confirmation links" Type="Variable" Display="always" Required="true" Mask="false">http://localhost:8080</Config>
+  <Config Name="Secret Key" Target="SECRET_KEY" Default="generate-random-secret-key-64-chars" Description="Cryptographic secret key for signing session tokens" Type="Variable" Display="always" Required="true" Mask="true">generate-random-secret-key-64-chars</Config>
+  <Config Name="Admin Email" Target="ADMIN_EMAIL" Default="admin@example.com" Description="Initial administrator login email" Type="Variable" Display="always" Required="true" Mask="false">admin@example.com</Config>
+  <Config Name="Admin Password" Target="ADMIN_PASSWORD" Default="admin123!" Description="Initial administrator password" Type="Variable" Display="always" Required="true" Mask="true">admin123!</Config>
+  <Config Name="Database URL" Target="DATABASE_URL" Default="sqlite:///./data/known_issues.db" Description="Database connection string (SQLite or PostgreSQL)" Type="Variable" Display="advanced" Required="false" Mask="false">sqlite:///./data/known_issues.db</Config>
+</Container>

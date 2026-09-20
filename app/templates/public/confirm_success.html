@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Confirmed | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto py-12">
+    <div class="homey-card p-8 sm:p-10 text-center space-y-6">
+        <div class="w-16 h-16 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-600 mx-auto flex items-center justify-center">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+        </div>
+
+        <div>
+            <h1 class="text-2xl font-bold text-gray-950">Subscription Confirmed!</h1>
+            <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                Thank you for confirming your email address. You will now receive automatic notifications whenever there are updates, workarounds, or firmware fixes for:
+            </p>
+        </div>
+
+        {% if issue %}
+            <div class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-left">
+                <span class="text-xs font-semibold text-gray-400 block mb-1">Issue Tracking:</span>
+                <a href="/issues/{{ issue.slug }}" class="text-sm font-bold text-gray-900 hover:text-homey-600 transition-colors">
+                    {{ issue.title }}
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="pt-4 flex items-center justify-center gap-3">
+            {% if issue %}
+                <a href="/issues/{{ issue.slug }}" class="btn-primary text-xs py-2.5 px-6">
+                    View Issue Details
+                </a>
+            {% endif %}
+            <a href="/" class="btn-secondary text-xs py-2.5 px-6">
+                Back to Status Page
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

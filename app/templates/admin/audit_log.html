@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Audit Trail | Admin Console{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-950 tracking-tight">System Audit Log</h1>
+        <p class="text-xs text-gray-500 mt-1">Immutable trail of administrative updates, status transitions, and automated promotions.</p>
+    </div>
+
+    <div class="homey-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
+                <thead class="bg-gray-50/80 font-semibold text-gray-500 uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-3.5">Timestamp</th>
+                        <th class="px-6 py-3.5">Admin / Actor</th>
+                        <th class="px-6 py-3.5">Action</th>
+                        <th class="px-6 py-3.5">Entity ID</th>
+                        <th class="px-6 py-3.5">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    {% if audit_logs %}
+                        {% for log in audit_logs %}
+                            <tr class="hover:bg-gray-50/80">
+                                <td class="px-6 py-3.5 text-gray-500 whitespace-nowrap">
+                                    {{ log.created_at.strftime('%d %b %Y %H:%M:%S') }}
+                                </td>
+                                <td class="px-6 py-3.5 font-medium text-gray-800">
+                                    {{ log.user_email or 'System' }}
+                                </td>
+                                <td class="px-6 py-3.5">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-gray-100 text-gray-800">
+                                        {{ log.action }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3.5 font-mono text-gray-400 text-[11px]">
+                                    {{ log.entity_id[:8] }}...
+                                </td>
+                                <td class="px-6 py-3.5 text-gray-600 font-mono text-[11px] max-w-md truncate">
+                                    {{ log.details }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                No audit events recorded yet.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

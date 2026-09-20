@@ -1,0 +1,134 @@
+<!-- Double Opt-In Subscription Modal -->
+<div id="subscribeModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeSubscribeModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+            <!-- Modal Header -->
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-homey-500"></span>
+                        <h3 class="text-lg font-bold text-gray-950" id="modal-title">Subscribe to updates</h3>
+                    </div>
+                    <button type="button" onclick="closeSubscribeModal()" class="text-gray-400 hover:text-gray-600 rounded-lg p-1">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Issue Target Info -->
+                <div class="mt-4">
+                    <p class="text-xs text-gray-500">You are subscribing to progress alerts for:</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-1 line-clamp-2" id="modalIssueTitle"></p>
+                </div>
+
+                <!-- Form Content -->
+                <form id="subscribeForm" onsubmit="handleSubscribeSubmit(event)" class="mt-6 space-y-4">
+                    <input type="hidden" id="modalIssueId" name="issue_id" value="">
+
+                    <div>
+                        <label for="subscribeEmail" class="block text-xs font-semibold text-gray-700 mb-1">
+                            Your Email Address
+                        </label>
+                        <input 
+                            type="email" 
+                            id="subscribeEmail" 
+                            name="email" 
+                            required 
+                            placeholder="your@email.com"
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-homey-500 focus:ring-2 focus:ring-homey-500/20 outline-none transition-all"
+                        >
+                    </div>
+
+                    <!-- Privacy & Double Opt-in Notice -->
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500 space-y-1.5">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-homey-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span>Your email address is strictly used to send verified updates about this specific issue.</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">
+                            We use double opt-in. A confirmation link will be sent to your inbox to activate notifications. You can unsubscribe at any time with a single click.
+                        </p>
+                    </div>
+
+                    <div id="subscribeModalMessage" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+                    <div class="pt-2 flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeSubscribeModal()" class="btn-secondary text-xs py-2 px-4">
+                            Cancel
+                        </button>
+                        <button type="submit" id="subscribeSubmitBtn" class="btn-primary text-xs py-2 px-5">
+                            Subscribe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openSubscribeModal(issueId, issueTitle) {
+    document.getElementById('modalIssueId').value = issueId;
+    document.getElementById('modalIssueTitle').textContent = issueTitle;
+    document.getElementById('subscribeEmail').value = '';
+    const msg = document.getElementById('subscribeModalMessage');
+    msg.className = 'hidden';
+    msg.textContent = '';
+    document.getElementById('subscribeModal').classList.remove('hidden');
+    document.getElementById('subscribeEmail').focus();
+}
+
+function closeSubscribeModal() {
+    document.getElementById('subscribeModal').classList.add('hidden');
+}
+
+async function handleSubscribeSubmit(e) {
+    e.preventDefault();
+    const issueId = document.getElementById('modalIssueId').value;
+    const email = document.getElementById('subscribeEmail').value.trim();
+    const btn = document.getElementById('subscribeSubmitBtn');
+    const msg = document.getElementById('subscribeModalMessage');
+
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+        const response = await fetch(`/api/issues/${issueId}/subscribe`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            msg.className = 'p-3 rounded-xl text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+            msg.textContent = data.message || 'Please check your email to confirm your subscription!';
+            document.getElementById('subscribeEmail').value = '';
+            setTimeout(() => {
+                closeSubscribeModal();
+            }, 3000);
+        } else {
+            msg.className = 'p-3 rounded-xl text-xs font-medium bg-red-50 text-red-800 border border-red-200 block';
+            msg.textContent = data.detail || 'Failed to submit subscription. Please try again.';
+        }
+    } catch (err) {
+        msg.className = 'p-3 rounded-xl text-xs font-medium bg-red-50 text-red-800 border border-red-200 block';
+        msg.textContent = 'A network error occurred. Please try again.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Subscribe';
+    }
+}
+</script>

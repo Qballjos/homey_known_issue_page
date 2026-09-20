@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <meta name="description" content="Official Known Issues and Status Page for Smart Home devices and ecosystem updates.">
+    
+    <!-- Typography: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS with custom branding -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              homey: {
+                50: '#F0FDF4',
+                100: '#DCFCE7',
+                200: '#BBF7D0',
+                300: '#86EFAC',
+                400: '#4ADE80',
+                500: '#00B86B', /* Signature Homey-like vibrant green */
+                600: '#00A35E',
+                700: '#00874E',
+                800: '#006B3E',
+                900: '#005431',
+              },
+              charcoal: {
+                800: '#1F2937',
+                900: '#111827',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- HTMX for reactive interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    
+    <!-- Custom stylesheet -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-full font-sans text-charcoal-900 bg-gray-50 antialiased selection:bg-homey-100 selection:text-homey-900">
+    
+    {% include "components/header.html" %}
+
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "components/footer.html" %}
+    {% include "components/subscribe_modal.html" %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

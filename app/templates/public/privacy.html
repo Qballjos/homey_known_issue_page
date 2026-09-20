@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy & GDPR Policy | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8">
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-950 tracking-tight">Privacy Policy & GDPR Compliance</h1>
+        <p class="text-sm text-gray-500 mt-2">Last updated: September 2026</p>
+    </div>
+
+    <div class="homey-card p-6 sm:p-10 space-y-6 text-sm text-gray-700 leading-relaxed">
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-gray-950">1. Purpose & Philosophy</h2>
+            <p>
+                This Known Issues & Status service is built exclusively to keep smart home users informed about technical defects, firmware updates, and workarounds. We believe in strict data minimization and user privacy.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-gray-950">2. What Data We Store</h2>
+            <p>When you subscribe to an issue, we store strictly what is technically necessary to deliver notifications:</p>
+            <ul class="list-disc pl-5 space-y-1">
+                <li><strong>Email address:</strong> Used solely to send transactional notifications for the specific issue you subscribed to.</li>
+                <li><strong>Issue identifier:</strong> To know which issue you wish to monitor.</li>
+                <li><strong>Subscription status:</strong> Pending confirmation, confirmed, or unsubscribed.</li>
+                <li><strong>Cryptographic tokens:</strong> Secure random tokens used to verify double opt-in confirmation and facilitate one-click unsubscription.</li>
+                <li><strong>Timestamps:</strong> When you requested, confirmed, or unsubscribed.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-gray-950">3. What We Never Do</h2>
+            <ul class="list-disc pl-5 space-y-1">
+                <li>We <strong>never</strong> use email tracking pixels or read receipts.</li>
+                <li>We <strong>never</strong> send marketing emails, advertisements, or newsletters.</li>
+                <li>We <strong>never</strong> sell, share, or rent your email address to any third party.</li>
+                <li>We do <strong>not</strong> use third-party analytics cookies or tracking scripts.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-gray-950">4. Double Opt-In & Unsubscribing</h2>
+            <p>
+                Subscriptions require double opt-in verification: you must confirm the activation link sent to your inbox before any future notifications are dispatched. Every email notification contains a direct, secure unsubscription link that immediately ceases all further communication for that issue.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-gray-950">5. Your Rights Under GDPR / AVG</h2>
+            <p>
+                You have the right to request access to, rectification of, or erasure of your personal data at any time. For self-hosted instances of this software, data is stored exclusively on the server administrator's infrastructure.
+            </p>
+        </section>
+    </div>
+</div>
+{% endblock %}

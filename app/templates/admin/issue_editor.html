@@ -1,0 +1,348 @@
+{% extends "admin/base.html" %}
+{% import "components/status_badge.html" as badge %}
+
+{% block title %}{% if issue %}Edit Issue: {{ issue.title }}{% else %}New Known Issue{% endif %} | Admin Console{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8">
+    <!-- Header / Back -->
+    <div class="flex items-center justify-between">
+        <a href="/admin/issues" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Back to Issues List
+        </a>
+
+        {% if issue %}
+            <div class="flex items-center gap-3">
+                <a href="/issues/{{ issue.slug }}" target="_blank" class="btn-secondary text-xs py-1.5 px-3">
+                    View Public Page ↗
+                </a>
+                <form method="POST" action="/admin/issues/{{ issue.id }}/delete" onsubmit="return confirm('Are you sure you want to delete this issue? This will remove all updates and subscriptions.');">
+                    <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50">
+                        Delete Issue
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Form Card -->
+    <div class="homey-card p-6 sm:p-10 space-y-8">
+        <div class="border-b border-gray-100 pb-4">
+            <h1 class="text-2xl font-bold text-gray-950 tracking-tight">
+                {% if issue %}Edit Known Issue{% else %}Create New Known Issue{% endif %}
+            </h1>
+            <p class="text-xs text-gray-500 mt-1">
+                {% if issue %}Update technical details, modify resolution timeline, or trigger subscriber notifications.{% else %}Draft a new confirmed issue for investigation or public publishing.{% endif %}
+            </p>
+        </div>
+
+        <form method="POST" action="{% if issue %}/admin/issues/{{ issue.id }}/edit{% else %}/admin/issues/new{% endif %}" class="space-y-6">
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-xs font-semibold text-gray-700 mb-1">
+                    Issue Title <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    required 
+                    value="{{ issue.title if issue else '' }}"
+                    placeholder="e.g. IKEA Matter devices cannot be added"
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-homey-500 focus:ring-2 focus:ring-homey-500/20 outline-none"
+                >
+            </div>
+
+            <!-- Summary / Impact -->
+            <div>
+                <label for="summary" class="block text-xs font-semibold text-gray-700 mb-1">
+                    Short Summary / Impact <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                    id="summary" 
+                    name="summary" 
+                    rows="2" 
+                    required 
+                    placeholder="High-level summary of what users experience..."
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-homey-500 focus:ring-2 focus:ring-homey-500/20 outline-none"
+                >{{ issue.summary if issue else '' }}</textarea>
+            </div>
+
+            <!-- Full Description -->
+            <div>
+                <label for="description" class="block text-xs font-semibold text-gray-700 mb-1">
+                    Full Technical Description <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="5" 
+                    required 
+                    placeholder="Detailed root cause analysis, reproduction steps, internal findings..."
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-homey-500 focus:ring-2 focus:ring-homey-500/20 outline-none"
+                >{{ issue.description if issue else '' }}</textarea>
+            </div>
+
+            <!-- Status, Severity, Visibility Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div>
+                    <label for="status" class="block text-xs font-semibold text-gray-700 mb-1">Status</label>
+                    <select id="status" name="status" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 bg-white">
+                        {% for st in ['Investigating', 'Identified', 'Fix in development', 'Monitoring', 'Resolved', 'Closed'] %}
+                            <option value="{{ st }}" {% if issue and issue.status == st %}selected{% endif %}>{{ st }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="severity" class="block text-xs font-semibold text-gray-700 mb-1">Severity / Impact</label>
+                    <select id="severity" name="severity" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 bg-white">
+                        {% for sev in ['Low', 'Medium', 'High', 'Critical'] %}
+                            <option value="{{ sev }}" {% if issue and issue.severity == sev %}selected{% endif %}>{{ sev }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="visibility" class="block text-xs font-semibold text-gray-700 mb-1">Visibility</label>
+                    <select id="visibility" name="visibility" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 bg-white">
+                        {% for vis in ['Draft', 'Internal', 'Public', 'Resolved', 'Closed'] %}
+                            <option value="{{ vis }}" {% if issue and issue.visibility == vis %}selected{% endif %}>{{ vis }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Affected Products & Versions -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                    <label for="product_names" class="block text-xs font-semibold text-gray-700 mb-1">
+                        Affected Products (comma-separated)
+                    </label>
+                    <input 
+                        type="text" 
+                        id="product_names" 
+                        name="product_names" 
+                        value="{% if issue %}{{ issue.products | map(attribute='name') | join(', ') }}{% endif %}"
+                        placeholder="Homey Pro, Homey Bridge, Homey Pro mini"
+                        class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                    >
+                </div>
+
+                <div>
+                    <label for="version_strings" class="block text-xs font-semibold text-gray-700 mb-1">
+                        Affected Versions (comma-separated)
+                    </label>
+                    <input 
+                        type="text" 
+                        id="version_strings" 
+                        name="version_strings" 
+                        value="{% if issue %}{{ issue.versions | map(attribute='version_string') | join(', ') }}{% endif %}"
+                        placeholder="OS 13.5.0, OS 13.4.1"
+                        class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                    >
+                </div>
+            </div>
+
+            <!-- Workaround, Expected fix, Fixed version -->
+            <div class="space-y-4 pt-2">
+                <div>
+                    <label for="workaround" class="block text-xs font-semibold text-gray-700 mb-1">
+                        Workaround
+                    </label>
+                    <textarea 
+                        id="workaround" 
+                        name="workaround" 
+                        rows="2" 
+                        placeholder="Steps users can take right now to bypass the issue..."
+                        class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                    >{{ issue.workaround if issue and issue.workaround else '' }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="expected_fix" class="block text-xs font-semibold text-gray-700 mb-1">
+                            Expected Fix
+                        </label>
+                        <input 
+                            type="text" 
+                            id="expected_fix" 
+                            name="expected_fix" 
+                            value="{{ issue.expected_fix if issue and issue.expected_fix else '' }}"
+                            placeholder="e.g. Thread handshake fix in next maintenance release"
+                            class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="fixed_version" class="block text-xs font-semibold text-gray-700 mb-1">
+                            Fixed in Version
+                        </label>
+                        <input 
+                            type="text" 
+                            id="fixed_version" 
+                            name="fixed_version" 
+                            value="{{ issue.fixed_version if issue and issue.fixed_version else '' }}"
+                            placeholder="e.g. OS 13.5.1"
+                            class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Publishing Threshold Controls -->
+            <div class="p-5 rounded-2xl bg-gray-50 border border-gray-200 space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900">Publishing Threshold & Auto-Promotion</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="min_subscribers_threshold" class="block text-xs font-medium text-gray-700 mb-1">
+                            Minimum Affected Users Threshold
+                        </label>
+                        <input 
+                            type="number" 
+                            id="min_subscribers_threshold" 
+                            name="min_subscribers_threshold" 
+                            min="0"
+                            value="{{ issue.min_subscribers_threshold if issue else 0 }}"
+                            class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 bg-white"
+                        >
+                        <p class="text-[11px] text-gray-500 mt-1">Require this many confirmed subscriptions before automatic public promotion.</p>
+                    </div>
+
+                    <div class="flex items-center pt-5">
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                name="auto_publish_on_threshold" 
+                                value="true"
+                                {% if issue and issue.auto_publish_on_threshold %}checked{% endif %}
+                                class="w-4 h-4 rounded text-homey-600 focus:ring-homey-500"
+                            >
+                            <span class="text-xs font-semibold text-gray-800">Publish automatically when threshold is reached</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+                <a href="/admin/issues" class="btn-secondary text-xs py-2.5 px-5">Cancel</a>
+                <button type="submit" class="btn-primary text-xs py-2.5 px-6">
+                    {% if issue %}Save Changes{% else %}Create Issue{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Timeline & Subscriber Notifications (Only in Edit mode) -->
+    {% if issue %}
+        <!-- Add Timeline Update Card -->
+        <div class="homey-card p-6 sm:p-8 space-y-6">
+            <div class="border-b border-gray-100 pb-3">
+                <h2 class="text-lg font-bold text-gray-950">Add Investigation Update</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Post an official progress report to the timeline and notify subscribers.</p>
+            </div>
+
+            <form method="POST" action="/admin/issues/{{ issue.id }}/updates" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="update_title" class="block text-xs font-semibold text-gray-700 mb-1">
+                            Update Headline <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="update_title" 
+                            name="title" 
+                            required 
+                            placeholder="e.g. Issue reproduced internally in testing lab"
+                            class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="new_status" class="block text-xs font-semibold text-gray-700 mb-1">
+                            Update Status To
+                        </label>
+                        <select id="new_status" name="new_status" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 bg-white">
+                            <option value="">Keep current ({{ issue.status }})</option>
+                            {% for st in ['Investigating', 'Identified', 'Fix in development', 'Monitoring', 'Resolved', 'Closed'] %}
+                                <option value="{{ st }}">{{ st }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="update_description" class="block text-xs font-semibold text-gray-700 mb-1">
+                        Update Details / Log <span class="text-red-500">*</span>
+                    </label>
+                    <textarea 
+                        id="update_description" 
+                        name="description" 
+                        rows="3" 
+                        required 
+                        placeholder="What changed? What is being tested? When is the next milestone expected?"
+                        class="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 focus:border-homey-500 outline-none"
+                    ></textarea>
+                </div>
+
+                <!-- Subscriber Notification Checkbox -->
+                <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            name="notify_subscribers" 
+                            value="true" 
+                            checked 
+                            class="w-4 h-4 rounded text-homey-600 focus:ring-homey-500"
+                        >
+                        <div>
+                            <span class="text-xs font-bold text-gray-950 block">[✓] Send email notification to subscribers</span>
+                            <span class="text-[11px] text-gray-600">Will dispatch verified update emails to all {{ issue.confirmed_subscribers_count }} confirmed subscribers.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit" class="btn-dark text-xs py-2 px-5">
+                        Post Update & Notify
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Timeline History -->
+        <div class="homey-card p-6 sm:p-8 space-y-4">
+            <h3 class="text-sm font-bold text-gray-950 uppercase tracking-wider">Current Timeline History</h3>
+            {% if issue.updates %}
+                <div class="divide-y divide-gray-100">
+                    {% for up in issue.updates %}
+                        <div class="py-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-900">{{ up.title }}</span>
+                                <span class="text-xs text-gray-400">{{ up.update_date.strftime('%d %B %Y %H:%M') }}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{{ up.description }}</p>
+                            <div class="flex items-center gap-3 text-[11px] text-gray-400 pt-1">
+                                {% if up.status_at_update %}
+                                    <span>Status snapshot: {{ up.status_at_update }}</span>
+                                {% endif %}
+                                {% if up.notified_subscribers %}
+                                    <span class="text-emerald-600 font-medium">✓ Subscribers notified</span>
+                                {% else %}
+                                    <span class="text-gray-400">Silent update</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-xs text-gray-400 py-4">No timeline updates recorded yet.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

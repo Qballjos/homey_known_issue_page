@@ -1,0 +1,45 @@
+<div class="mb-10">
+    {% if active_issues_count == 0 %}
+        <!-- Everything Operational -->
+        <div class="p-6 rounded-2xl bg-white border border-emerald-200/90 shadow-sm flex items-center justify-between transition-all hover:shadow-md">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Everything Operational</h2>
+                    <p class="text-sm text-gray-500">No active confirmed issues affecting smart home devices.</p>
+                </div>
+            </div>
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Operational
+            </div>
+        </div>
+    {% else %}
+        <!-- Known Issues Active Banner -->
+        <div class="p-6 rounded-2xl bg-white border border-amber-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 shrink-0">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-gray-950 tracking-tight">
+                            {{ active_issues_count }} Active Known Issue{% if active_issues_count > 1 %}s{% endif %}
+                        </h2>
+                    </div>
+                    <p class="text-sm text-gray-600">Our engineering teams are investigating or monitoring fixes for the items below.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-center px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-amber-500 status-dot-pulse"></span>
+                <span>Active Investigation</span>
+            </div>
+        </div>
+    {% endif %}
+</div>

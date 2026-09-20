@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: known-issues-app
+    restart: unless-stopped
+    ports:
+      - "8080:8000"
+    environment:
+      - APP_NAME=${APP_NAME:-Smart Home Known Issues}
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-known_issues}:${POSTGRES_PASSWORD:-known_issues_secure_pass}@db:5432/${POSTGRES_DB:-known_issues_db}
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-very-long-and-secure-random-secret-key-in-production}
+      - SESSION_COOKIE_NAME=${SESSION_COOKIE_NAME:-known_issues_session}
+      - COOKIE_SECURE=${COOKIE_SECURE:-false}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123!}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-noreply@status.example.com}
+      - SMTP_TLS=${SMTP_TLS:-true}
+      - AUTO_SEED=${AUTO_SEED:-true}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal_network
+
+  db:
+    image: postgres:16-alpine
+    container_name: known-issues-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-known_issues_db}
+      POSTGRES_USER: ${POSTGRES_USER:-known_issues}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-known_issues_secure_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Database is internal only and NOT exposed to the outside host network
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-known_issues} -d ${POSTGRES_DB:-known_issues_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal_network
+
+volumes:
+  postgres_data:
+    name: known-issues-postgres-data
+
+networks:
+  internal_network:
+    name: known-issues-network
+    driver: bridge

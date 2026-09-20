@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% import "components/status_badge.html" as badge %}
+
+{% block title %}Resolved Issues Archive | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Resolution Archive
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-950 tracking-tight">
+            Resolved Issues
+        </h1>
+        <p class="mt-2 text-base sm:text-lg text-gray-600 leading-relaxed">
+            Historical overview of confirmed technical issues that have been patched and verified across all releases.
+        </p>
+    </div>
+
+    <!-- Resolved Issues Grid -->
+    <div class="space-y-6">
+        {% if resolved_issues %}
+            {% for issue in resolved_issues %}
+                <div class="homey-card p-6 sm:p-8 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            {{ badge.render_status_badge(issue.status) }}
+                            {% if issue.fixed_version %}
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100/70 text-emerald-900 border border-emerald-200">
+                                    Fixed in {{ issue.fixed_version }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-xs text-gray-500">
+                            Resolved on <strong class="text-gray-800 font-semibold">{{ (issue.resolved_at or issue.last_updated_at).strftime('%d %B %Y') }}</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight hover:text-homey-600 transition-colors">
+                            <a href="/issues/{{ issue.slug }}">{{ issue.title }}</a>
+                        </h3>
+                        <p class="mt-2 text-sm sm:text-base text-gray-700 leading-relaxed">
+                            {{ issue.summary }}
+                        </p>
+                    </div>
+
+                    <!-- Resolution & Fix details -->
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 text-sm space-y-2">
+                        {% if issue.expected_fix %}
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-1">Permanent Resolution</span>
+                                <span class="text-gray-800">{{ issue.expected_fix }}</span>
+                            </div>
+                        {% endif %}
+
+                        {% if issue.products %}
+                            <div class="pt-2 border-t border-gray-200/60 flex items-center gap-2">
+                                <span class="text-xs text-gray-500">Affected devices:</span>
+                                <div class="flex flex-wrap gap-1">
+                                    {% for p in issue.products %}
+                                        <span class="text-xs font-medium text-gray-700 bg-white px-2 py-0.5 rounded border border-gray-200">
+                                            {{ p.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <a href="/issues/{{ issue.slug }}" class="btn-secondary text-xs py-2 px-4">
+                            View Full History & Timeline
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="homey-card p-12 text-center">
+                <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-400 mx-auto flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-gray-900">No resolved issues archived yet</h3>
+                <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">
+                    When active issues are verified as resolved, they are stored here for long-term reference.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

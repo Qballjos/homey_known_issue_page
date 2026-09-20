@@ -1,0 +1,34 @@
+{% macro render_status_badge(status, size="normal") %}
+    {% set st = status | lower %}
+    {% if st == 'investigating' %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-amber-500 status-dot-pulse"></span>
+            Investigating
+        </span>
+    {% elif st == 'identified' %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200/80 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            Identified
+        </span>
+    {% elif st == 'fix in development' or st == 'fix_in_development' %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-purple-50 text-purple-800 border border-purple-200/80 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-purple-500 status-dot-pulse"></span>
+            Fix in development
+        </span>
+    {% elif st == 'monitoring' %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-teal-50 text-teal-800 border border-teal-200/80 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-teal-500 status-dot-pulse"></span>
+            Monitoring
+        </span>
+    {% elif st == 'resolved' %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Resolved
+        </span>
+    {% else %}
+        <span class="inline-flex items-center gap-1.5 {% if size == 'large' %}px-3.5 py-1.5 text-xs font-bold{% else %}px-2.5 py-1 text-[11px] font-semibold{% endif %} rounded-full bg-gray-100 text-gray-700 border border-gray-300 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+            {{ status }}
+        </span>
+    {% endif %}
+{% endmacro %}

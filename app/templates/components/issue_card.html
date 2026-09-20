@@ -1,0 +1,106 @@
+{% import "components/status_badge.html" as badge %}
+
+<div class="homey-card p-6 sm:p-8 flex flex-col justify-between gap-6" id="issue-card-{{ issue.id }}">
+    <!-- Top Bar: Status and Affected Metric -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+        <div>
+            {{ badge.render_status_badge(issue.status) }}
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium text-gray-500">
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-600 font-bold text-[10px]">
+                {{ issue.confirmed_subscribers_count }}
+            </span>
+            <span>Affected users subscribed</span>
+        </div>
+    </div>
+
+    <!-- Issue Title & Impact -->
+    <div>
+        <h3 class="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight hover:text-homey-600 transition-colors">
+            <a href="/issues/{{ issue.slug }}">{{ issue.title }}</a>
+        </h3>
+        <div class="mt-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Impact</div>
+            <p class="text-sm sm:text-base text-gray-700 leading-relaxed font-normal">
+                {{ issue.summary }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Technical Specs: Products & Versions Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/70 rounded-xl p-4 border border-gray-100/80">
+        <div>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Affected products</div>
+            {% if issue.products %}
+                <ul class="text-xs sm:text-sm font-medium text-gray-800 space-y-1">
+                    {% for product in issue.products %}
+                        <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                            {{ product.name }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <span class="text-xs text-gray-400 italic">None specified</span>
+            {% endif %}
+        </div>
+
+        <div>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Affected versions</div>
+            {% if issue.versions %}
+                <ul class="text-xs sm:text-sm font-medium text-gray-800 space-y-1">
+                    {% for ver in issue.versions %}
+                        <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                            {{ ver.version_string }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elif issue.fixed_version %}
+                <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                    Fixed in {{ issue.fixed_version }}
+                </span>
+            {% else %}
+                <span class="text-xs text-gray-400 italic">All versions</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Workaround Preview if Available -->
+    {% if issue.workaround %}
+        <div class="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/50 text-xs sm:text-sm text-amber-950">
+            <span class="font-bold text-amber-900 block mb-0.5">Workaround available:</span>
+            {{ issue.workaround }}
+        </div>
+    {% endif %}
+
+    <!-- Dates Row & Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <div>
+                <span class="text-gray-400">First reported:</span>
+                <span class="font-medium text-gray-700">{{ issue.first_reported_at.strftime('%d %B %Y') }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Confirmed:</span>
+                <span class="font-medium text-gray-700">{{ issue.confirmed_at.strftime('%d %B %Y') }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Last update:</span>
+                <span class="font-medium text-gray-700">{{ issue.last_updated_at.strftime('%d %B %Y') }}</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+            <a href="/issues/{{ issue.slug }}" class="btn-secondary text-xs py-2 px-4">
+                View Details
+            </a>
+            <button 
+                type="button" 
+                onclick="openSubscribeModal('{{ issue.id }}', '{{ issue.title | replace("'", "\\'") }}')" 
+                class="btn-primary text-xs py-2 px-4 shadow-none">
+                Subscribe to updates
+            </button>
+        </div>
+    </div>
+</div>

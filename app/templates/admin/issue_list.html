@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% import "components/status_badge.html" as badge %}
+
+{% block title %}Manage Issues | Admin Console{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-950 tracking-tight">Issues Management</h1>
+            <p class="text-xs text-gray-500 mt-1">Publish, update statuses, add technical workarounds, and notify subscribers.</p>
+        </div>
+        <div>
+            <a href="/admin/issues/new" class="btn-primary text-xs py-2 px-4 shadow-sm">
+                + Create New Issue
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <form method="GET" action="/admin/issues" class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ search_query or '' }}" 
+                placeholder="Filter issues..." 
+                class="px-3.5 py-1.5 text-xs rounded-xl border border-gray-300 focus:border-homey-500 focus:ring-1 focus:ring-homey-500 outline-none w-64"
+            >
+
+            <select 
+                name="visibility" 
+                onchange="this.form.submit()" 
+                class="px-3 py-1.5 text-xs rounded-xl border border-gray-300 bg-white text-gray-700"
+            >
+                <option value="">All Visibilities</option>
+                <option value="Public" {% if selected_visibility == 'Public' %}selected{% endif %}>Public</option>
+                <option value="Draft" {% if selected_visibility == 'Draft' %}selected{% endif %}>Draft</option>
+                <option value="Internal" {% if selected_visibility == 'Internal' %}selected{% endif %}>Internal</option>
+                <option value="Resolved" {% if selected_visibility == 'Resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+
+            <button type="submit" class="btn-dark text-xs py-1.5 px-3">Filter</button>
+            {% if search_query or selected_visibility %}
+                <a href="/admin/issues" class="text-xs text-gray-500 hover:text-gray-900 py-1.5 px-2">Reset</a>
+            {% endif %}
+        </form>
+
+        <span class="text-xs text-gray-400 font-medium">Total: {{ issues | length }} issues</span>
+    </div>
+
+    <!-- Table -->
+    <div class="homey-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
+                <thead class="bg-gray-50/80 font-semibold text-gray-500 uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-3.5">Issue Title</th>
+                        <th class="px-6 py-3.5">Status</th>
+                        <th class="px-6 py-3.5">Visibility</th>
+                        <th class="px-6 py-3.5">Subscribers</th>
+                        <th class="px-6 py-3.5">Products</th>
+                        <th class="px-6 py-3.5">Last Updated</th>
+                        <th class="px-6 py-3.5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                    {% if issues %}
+                        {% for issue in issues %}
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                <td class="px-6 py-4">
+                                    <a href="/admin/issues/{{ issue.id }}/edit" class="font-bold text-gray-950 hover:text-homey-600 block line-clamp-1">
+                                        {{ issue.title }}
+                                    </a>
+                                    <span class="text-[11px] text-gray-400 font-mono">/issues/{{ issue.slug }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ badge.render_status_badge(issue.status) }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if issue.visibility == 'Public' %}
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Public</span>
+                                    {% elif issue.visibility == 'Draft' %}
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-gray-600 border border-gray-200">Draft</span>
+                                    {% elif issue.visibility == 'Internal' %}
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200">Internal</span>
+                                    {% else %}
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-gray-700">{{ issue.visibility }}</span>
+                                    {% endif %}
+                                    {% if issue.auto_publish_on_threshold and issue.visibility != 'Public' %}
+                                        <span class="block text-[10px] text-purple-600 mt-0.5 font-medium">Auto: ≥{{ issue.min_subscribers_threshold }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="font-semibold text-gray-900">{{ issue.confirmed_subscribers_count }}</span>
+                                    <span class="text-gray-400">confirmed</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-wrap gap-1 max-w-xs">
+                                        {% for p in issue.products %}
+                                            <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-[10px] font-medium">{{ p.name }}</span>
+                                        {% else %}
+                                            <span class="text-gray-400 italic text-[11px]">-</span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
+                                    {{ issue.last_updated_at.strftime('%d %b %Y %H:%M') }}
+                                </td>
+                                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                                    <a href="/issues/{{ issue.slug }}" target="_blank" class="text-gray-400 hover:text-gray-700">
+                                        View
+                                    </a>
+                                    <a href="/admin/issues/{{ issue.id }}/edit" class="font-semibold text-homey-600 hover:text-homey-700">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-400">
+                                No issues found.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
